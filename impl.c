@@ -68,4 +68,52 @@ void transpose(int *src, int *dst, int w, int h)
     }
 }
 #endif
+
+#ifdef ASM_SSE
+void transpose(int *src, int *dst, int w, int h)
+{
+    for (int x = 0; x < w; x += 4) {
+        for (int y = 0; y < h; y += 4) {
+
+            asm volatile
+            (
+                "movups %[e], %%xmm0 \n\t" //I0
+                "movups %[f], %%xmm1 \n\t" //I1
+                "movups %[g], %%xmm2 \n\t" //I2
+                "movups %[i], %%xmm3 \n\t" //I3
+
+                "movups %%xmm0,%%xmm4 \n\t" //I1
+                "movups %%xmm2,%%xmm5 \n\t" //I3
+
+                "punpckldq %%xmm1,%%xmm4 \n\t" //T0  I0 I1
+                "punpckldq %%xmm3,%%xmm5 \n\t" //T1  I
+                "punpckhdq %%xmm1,%%xmm0 \n\t" //T2
+                "punpckhdq %%xmm3,%%xmm2 \n\t" //T3
+
+                "movups %%xmm4,%%xmm1 \n\t"  //T1
+                "movups %%xmm0,%%xmm3 \n\t"  //T3
+
+                "punpcklqdq %%xmm5,%%xmm4 \n\t" //I0
+                "punpckhqdq %%xmm5,%%xmm1 \n\t" //I1
+                "punpcklqdq %%xmm2,%%xmm3 \n\t" //I2
+                "punpckhqdq %%xmm2,%%xmm0 \n\t" //I3
+
+
+                "movups %%xmm4,%[a] \n\t"
+                "movups %%xmm1,%[b] \n\t"
+                "movups %%xmm3,%[c] \n\t"
+                "movups %%xmm0,%[d] \n\t"
+
+                : [a] "=m" ( dst[(x + 0)*h + y] ), [b] "=m" ( dst[(x + 1) * h + y] )
+                , [c] "=m" ( dst[(x + 2)*h + y] ), [d]"=m" ( dst[(x + 3) * h + y] )
+
+                : [e] "m" ( src[(y + 0)*w + x] ), [f] "m" ( src[(y + 1) * w + x] )
+                , [g] "m" ( src[(y + 2)*w + x] ), [i] "m" ( src[(y + 3) * w + x] )
+            );
+
+        }
+    }
+}
+#endif
+
 #endif

@@ -70,15 +70,7 @@ int main(int argc, char *argv[])
         clock_gettime(CLOCK_REALTIME, &start);
         transpose(src, out0, TEST_W, TEST_H);
         clock_gettime(CLOCK_REALTIME, &end);
-#ifdef SSE_PREFETCH
-        printf("sse prefetch: \t %ld us\n", diff_in_us(start, end));
-#endif
-#ifdef SSE
-        printf("sse: \t\t %ld us\n", diff_in_us(start, end));
-#endif
-#ifdef NAIVE
-        printf("naive: \t\t %ld us\n", diff_in_us(start, end));
-#endif
+        printf("Time: \t %ld us\n", diff_in_us(start, end));
 
         free(src);
         free(out0);
