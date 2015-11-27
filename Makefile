@@ -1,6 +1,6 @@
 CFLAGS = -msse2 -std=gnu99 -O0 -Wall
 
-EXEC = naive_transpose sse_transpose sse_prefetch_transpose asm_sse_transpose
+EXEC = naive_transpose sse_transpose sse_prefetch_transpose asm_sse_transpose asm_sse_prefetch_transpose
 
 all: $(EXEC)
 
@@ -15,6 +15,9 @@ sse_prefetch_transpose:main.c
 
 asm_sse_transpose:main.c
 	$(CC) $(CFLAGS) -D ASM_SSE $^ -o $@
+
+asm_sse_prefetch_transpose:main.c
+	$(CC) $(CFLAGS) -D ASM_PREFETCH_SSE $^ -o $@
 
 clean:
 	$(RM) $(EXEC)
